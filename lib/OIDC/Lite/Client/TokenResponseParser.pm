@@ -1,12 +1,11 @@
 package OIDC::Lite::Client::TokenResponseParser;
-
 use strict;
 use warnings;
 
-use Try::Tiny;
+use Try::Tiny qw/try catch/;
+use OIDC::Lite::Client::Token;
 use OAuth::Lite2::Formatters;
 use OAuth::Lite2::Client::Error;
-use OIDC::Lite::Client::Token;
 
 sub new {
     bless {}, $_[0];
@@ -50,7 +49,9 @@ sub parse {
                 my $result = $formatter->parse($http_res->content);
                 $errmsg = $result->{error}
                     if exists $result->{error};
-            } catch { return };
+            } catch {
+        	return OAuth::Lite2::Client::Error::InvalidResponse->throw;
+            };
         }
         OAuth::Lite2::Client::Error::InvalidResponse->throw( message => $errmsg );
     }
@@ -70,4 +71,5 @@ it under the same terms as Perl itself, either Perl version 5.8.8 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
+
 1;

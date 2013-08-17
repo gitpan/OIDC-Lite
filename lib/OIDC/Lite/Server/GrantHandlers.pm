@@ -1,5 +1,4 @@
 package OIDC::Lite::Server::GrantHandlers;
-
 use strict;
 use warnings;
 
@@ -49,7 +48,11 @@ store of handlers for each grant_type.
 
 =head2 add_handler( $grant_type, $handler )
 
+add GrantHandler instance
+
 =head2 get_handler( $grant_type )
+
+get GrantHandler instance
 
 =head1 SEE ALSO
 

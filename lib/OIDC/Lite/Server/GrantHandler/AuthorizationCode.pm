@@ -1,13 +1,11 @@
 package OIDC::Lite::Server::GrantHandler::AuthorizationCode;
-
 use strict;
 use warnings;
-
 use parent 'OAuth::Lite2::Server::GrantHandler';
+
+use Carp ();
 use OAuth::Lite2::Server::Error;
 use OAuth::Lite2::ParamMethod::AuthHeader;
-use OIDC::Lite::Model::AuthInfo;
-use Carp ();
 
 sub handle_request {
     my ($self, $dh) = @_;
@@ -32,8 +30,7 @@ sub handle_request {
         or OAuth::Lite2::Server::Error::InvalidGrant->throw;
 
     Carp::croak "OAuth::Lite2::Server::DataHandler::get_auth_info_by_code doesn't return OAuth::Lite2::Model::AuthInfo"
-        unless ($auth_info
-            && $auth_info->isa("OIDC::Lite::Model::AuthInfo"));
+        unless ($auth_info->isa("OIDC::Lite::Model::AuthInfo"));
 
     OAuth::Lite2::Server::Error::InvalidClient->throw
         unless ($auth_info->client_id eq $client_id);
@@ -46,8 +43,7 @@ sub handle_request {
         auth_info => $auth_info,
     );
     Carp::croak "OAuth::Lite2::Server::DataHandler::create_or_update_access_token doesn't return OAuth::Lite2::Model::AccessToken"
-        unless ($access_token
-            && $access_token->isa("OAuth::Lite2::Model::AccessToken"));
+        unless ($access_token->isa("OAuth::Lite2::Model::AccessToken"));
 
     my $res = {
         token_type => 'Bearer',

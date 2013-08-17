@@ -1,8 +1,6 @@
 package OIDC::Lite::Client::Token;
-
 use strict;
 use warnings;
-
 use base 'Class::Accessor::Fast';
 
 __PACKAGE__->mk_accessors(qw(
@@ -35,13 +33,23 @@ Class represents access-token response
 
 =head2 access_token
 
+The access token issued by the authorization serve
+
 =head2 expires_in
+
+The lifetime in seconds of the access token
 
 =head2 refresh_token
 
+The refresh token, which can be used to obtain new access tokens using the same authorization grant
+
 =head2 scope
 
+The scope of the access token
+
 =head2 id_token
+
+ID Token value associated with the authenticated session
 
 =head1 AUTHOR
 

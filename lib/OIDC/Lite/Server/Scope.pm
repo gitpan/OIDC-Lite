@@ -1,7 +1,8 @@
 package OIDC::Lite::Server::Scope;
-
 use strict;
 use warnings;
+
+sub optional_scopes{ return qw{profile email address phone offline_access}; }
 
 sub validate_scopes{
     my ($self, $scopes) = @_;
@@ -10,8 +11,10 @@ sub validate_scopes{
     return 1 if ($self->is_openid_request($scopes));
 
     # if scope doesn't include 'openid', other OIDC scope must not be included.
+    my %optional_scope_hash;
+    $optional_scope_hash{$_}++ foreach $self->optional_scopes;
     foreach my $scope (@$scopes){
-        return 0 if (grep {$_ eq $scope} qw{profile email address phone});
+	return 0 if exists $optional_scope_hash{$scope};
     }
     return 1;
 }
@@ -23,7 +26,9 @@ sub is_openid_request{
     return 0 unless (ref($scopes) eq 'ARRAY');
 
     # if it has 'openid', return true.
-    return (grep {$_ eq q{openid}} @$scopes);
+    my %scope_hash;
+    $scope_hash{$_}++ foreach @$scopes;
+    return (exists $scope_hash{q{openid}});
 }
 
 sub is_required_offline_access{
@@ -33,7 +38,9 @@ sub is_required_offline_access{
     return 0 unless (ref($scopes) eq 'ARRAY');
 
     # if it has 'offline_access', return true.
-    return (grep {$_ eq q{offline_access}} @$scopes);
+    my %scope_hash;
+    $scope_hash{$_}++ foreach @$scopes;
+    return (exists $scope_hash{q{offline_access}});
 }
 
 sub to_normal_claims{
@@ -47,7 +54,7 @@ sub to_normal_claims{
         push(@claims, qw{name family_name given_name middle_name 
                          nickname preferred_username profile 
                          picture website gender birthdate 
-                         zoneinfo locale updated_time})
+                         zoneinfo locale updated_at})
             if($scope eq q{profile});
 
         push(@claims, qw(email email_verified))
@@ -56,7 +63,7 @@ sub to_normal_claims{
         push(@claims, qw{address})
             if($scope eq q{address});
 
-        push(@claims, qw{phone_number})
+        push(@claims, qw{phone_number phone_number_verified})
             if($scope eq q{phone});
     }
 

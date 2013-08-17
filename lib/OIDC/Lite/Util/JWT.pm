@@ -1,10 +1,7 @@
 package OIDC::Lite::Util::JWT;
-
 use strict;
 use warnings;
 
-use Try::Tiny;
-use Params::Validate;
 use JSON qw/decode_json encode_json/;
 use MIME::Base64 qw/encode_base64url decode_base64url/;
 
@@ -43,17 +40,15 @@ Returns hash reference of JWT Header.
 sub header {
     my ($jwt) = @_;
     my $segments = [split(/\./, $jwt)];
-    return {}
-        unless (@$segments == 2 or @$segments == 3);
+    return unless (@$segments == 2 or @$segments == 3);
 
     my ($header_segment, $payload_segment, $crypt_segment) = @$segments;
     my $header;
-    try {
+    eval {
         $header = decode_json(decode_base64url($header_segment));
-    } catch {
-        return {} if defined $_;
-        return $header;
     };
+    return if $@;
+    return $header;
 }
 
 =head2 payload( $jwt )
@@ -68,17 +63,15 @@ Returns hash reference of JWT Payload.
 sub payload {
     my ($jwt) = @_;
     my $segments = [split(/\./, $jwt)];
-    return {}
-        unless (@$segments == 2 or @$segments == 3);
+    return unless (@$segments == 2 or @$segments == 3);
 
     my ($header_segment, $payload_segment, $crypt_segment) = @$segments;
     my $payload;
-    try {
+    eval {
         $payload = decode_json(decode_base64url($payload_segment));
-    } catch {
-        return {} if defined $_;
-        return $payload;
     };
+    return if $@;
+    return $payload;
 }
 
 =head1 AUTHOR

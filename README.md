@@ -1,34 +1,21 @@
-package OIDC::Lite;
-
-use strict;
-use warnings;
-use 5.008_001;
-
-our $VERSION = '0.03';
-
-1;
-__END__
-
-=head1 NAME
+# NAME
 
 OIDC::Lite - OpenID Connect Library
 
-=head1 DESCRIPTION
+# DESCRIPTION
 
 OpenID Connect Server/Client Library
 
-=head1 AUTHOR
+# AUTHOR
 
-Ryo Ito E<lt>ritou.06@gmail.comE<gt>
+Ryo Ito <ritou.06@gmail.com>
 
-=head1 COPYRIGHT AND LICENSE
+# COPYRIGHT AND LICENSE
 
 Copyright (C) 2012 by Ryo Ito
 
-=head1 LICENSE
+# LICENSE
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,
 at your option, any later version of Perl 5 you may have available.
-
-=cut

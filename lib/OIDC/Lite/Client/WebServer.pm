@@ -1,24 +1,20 @@
 package OIDC::Lite::Client::WebServer;
-
 use strict;
 use warnings;
-
 use base 'Class::ErrorHandler';
-
-use Params::Validate qw(HASHREF);
-use Carp ();
 use bytes ();
+
 use URI;
+use Carp ();
+use Try::Tiny qw(try catch);
 use LWP::UserAgent;
 use HTTP::Request;
 use HTTP::Headers;
-use Try::Tiny;
-
+use Params::Validate qw(HASHREF);
 use OAuth::Lite2;
 use OAuth::Lite2::Util qw(build_content);
-use OAuth::Lite2::Formatters;
 use OIDC::Lite::Client::TokenResponseParser;
-use MIME::Base64 qw(encode_base64);
+
 
 =head1 NAME
 
@@ -152,7 +148,6 @@ sub new {
     my %args = Params::Validate::validate(@_, {
         id                => 1,
         secret            => 1,
-        # format          => { optional => 1 },
         authorize_uri     => { optional => 1 },
         access_token_uri  => { optional => 1 },
         refresh_token_uri => { optional => 1 },
@@ -176,7 +171,7 @@ sub new {
             join "/", __PACKAGE__, $OAuth::Lite2::VERSION);
     }
 
-    $self->{format} ||= 'json';
+    $self->{format} = 'json';
     $self->{response_parser} = OIDC::Lite::Client::TokenResponseParser->new;
 
     return $self;
@@ -192,10 +187,14 @@ sub uri_to_redirect {
         redirect_uri => 1,
         state        => { optional => 1 },
         scope        => { optional => 1 },
-        immediate    => { optional => 1 },
         uri          => { optional => 1 },
         extra        => { optional => 1, type => HASHREF },
     });
+
+    unless (exists $args{uri}) {
+        $args{uri} = $self->{authorize_uri};
+        Carp::croak "uri not found" unless $args{uri};
+    }
 
     my %params = (
         response_type => 'code',
@@ -204,7 +203,6 @@ sub uri_to_redirect {
     );
     $params{state}     = $args{state}     if $args{state};
     $params{scope}     = $args{scope}     if $args{scope};
-    $params{immediate} = $args{immediate} if $args{immediate};
 
     if ($args{extra}) {
         for my $key ( keys %{$args{extra}} ) {
@@ -212,11 +210,7 @@ sub uri_to_redirect {
         }
     }
 
-    my $uri = $args{uri}
-        || $self->{authorize_uri}
-        || Carp::croak "uri not found";
-
-    $uri = URI->new($uri);
+    my $uri = URI->new($args{uri});
     $uri->query_form(%params);
     return $uri->as_string;
 }
@@ -248,20 +242,17 @@ sub get_access_token {
         redirect_uri => 1,
         uri          => { optional => 1 },
         use_basic_schema    => { optional => 1 },
-        # secret_type => { optional => 1 },
-        # format      => { optional => 1 },
     });
 
     unless (exists $args{uri}) {
-        $args{uri} = $self->{access_token_uri}
-            || Carp::croak "uri not found";
+        $args{uri} = $self->{access_token_uri};
+        Carp::croak "uri not found" unless $args{uri};
     }
 
     my %params = (
         grant_type    => 'authorization_code',
         code          => $args{code},
         redirect_uri  => $args{redirect_uri},
-        # format      => $args{format},
     );
 
     unless ($args{use_basic_schema}){
@@ -273,7 +264,7 @@ sub get_access_token {
     my $headers = HTTP::Headers->new;
     $headers->header("Content-Type" => q{application/x-www-form-urlencoded});
     $headers->header("Content-Length" => bytes::length($content));
-    $headers->header("Authorization" => sprintf(q{Basic %s}, encode_base64($self->{id}.":".$self->{secret},''))) 
+    $headers->authorization_basic($self->{id}, $self->{secret})
         if($args{use_basic_schema});
     my $req = HTTP::Request->new( POST => $args{uri}, $headers, $content );
 
@@ -286,8 +277,9 @@ sub get_access_token {
         $token = $self->{response_parser}->parse($res);
     } catch {
         $errmsg = "$_";
+        return $self->error($errmsg);
     };
-    return $token || $self->error($errmsg);
+    return $token;
 }
 
 =head2 refresh_access_token( %params )
@@ -313,8 +305,8 @@ sub refresh_access_token {
     });
 
     unless (exists $args{uri}) {
-        $args{uri} = $self->{access_token_uri}
-            || Carp::croak "uri not found";
+        $args{uri} = $self->{access_token_uri};
+        Carp::croak "uri not found" unless $args{uri};
     }
 
     my %params = (
@@ -331,7 +323,7 @@ sub refresh_access_token {
     my $headers = HTTP::Headers->new;
     $headers->header("Content-Type" => q{application/x-www-form-urlencoded});
     $headers->header("Content-Length" => bytes::length($content));
-    $headers->header("Authorization" => sprintf(q{Basic %s}, encode_base64($self->{id}.":".$self->{secret},''))) 
+    $headers->authorization_basic($self->{id}, $self->{secret})
         if($args{use_basic_schema});
     my $req = HTTP::Request->new( POST => $args{uri}, $headers, $content );
 
@@ -344,9 +336,9 @@ sub refresh_access_token {
         $token = $self->{response_parser}->parse($res);
     } catch {
         $errmsg = "$_";
+        return $self->error($errmsg);
     };
-    return $token || $self->error($errmsg);
-
+    return $token;
 }
 
 =head2 last_request
