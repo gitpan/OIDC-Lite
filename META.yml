@@ -31,7 +31,7 @@ no_index:
 provides:
   OIDC::Lite:
     file: lib/OIDC/Lite.pm
-    version: 0.03
+    version: 0.04
   OIDC::Lite::Client::Token:
     file: lib/OIDC/Lite/Client/Token.pm
   OIDC::Lite::Client::TokenResponseParser:
@@ -71,4 +71,4 @@ resources:
   bugtracker: https://github.com/ritou/p5-oidc-lite/issues
   homepage: https://github.com/ritou/p5-oidc-lite
   repository: https://github.com/ritou/p5-oidc-lite.git
-version: 0.03
+version: 0.04
