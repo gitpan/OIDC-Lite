@@ -4,8 +4,10 @@
       "Ryo Ito <ritou.06@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.5.6",
-   "license" : "perl_5",
+   "generated_by" : "Minilla/v0.8.0",
+   "license" : [
+      "perl_5"
+   ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
@@ -19,7 +21,8 @@
          "share",
          "eg",
          "examples",
-         "author"
+         "author",
+         "builder"
       ]
    },
    "prereqs" : {
@@ -54,7 +57,7 @@
             "JSON" : "0",
             "JSON::WebToken" : "0.07",
             "MIME::Base64" : "3.11",
-            "OAuth::Lite2" : "0.05",
+            "OAuth::Lite2" : "0.06",
             "Params::Validate" : "0.95",
             "perl" : "5.008001"
          }
@@ -63,7 +66,7 @@
    "provides" : {
       "OIDC::Lite" : {
          "file" : "lib/OIDC/Lite.pm",
-         "version" : "0.04"
+         "version" : "0.05"
       },
       "OIDC::Lite::Client::Token" : {
          "file" : "lib/OIDC/Lite/Client/Token.pm"
@@ -112,9 +115,9 @@
       },
       "homepage" : "https://github.com/ritou/p5-oidc-lite",
       "repository" : {
-         "url" : "https://github.com/ritou/p5-oidc-lite.git",
+         "url" : "git://github.com/ritou/p5-oidc-lite.git",
          "web" : "https://github.com/ritou/p5-oidc-lite"
       }
    },
-   "version" : "0.04"
+   "version" : "0.05"
 }
